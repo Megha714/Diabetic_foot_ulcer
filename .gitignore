@@ -39,7 +39,6 @@ val2017/
 *.zip
 
 # IDE
-.vscode/
 .idea/
 *.swp
 *.swo

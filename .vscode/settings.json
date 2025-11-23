@@ -1,0 +1,12 @@
+{
+  "html.validate.scripts": false,
+  "html.validate.styles": false,
+  "css.lint.validProperties": [
+    "width"
+  ],
+  "javascript.validate.enable": false,
+  "typescript.validate.enable": false,
+  "[html]": {
+    "editor.suggest.insertMode": "replace"
+  }
+}
