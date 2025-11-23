@@ -52,4 +52,8 @@ val2017/
 results/
 visualizations/*.png
 logs/*.log
+
+# IMPORTANT: Model file is too large for Vercel (>4GB)
+# Use Render, Railway, or Hugging Face for ML deployments
 checkpoints/best_model.pth
+checkpoints/*.pth
