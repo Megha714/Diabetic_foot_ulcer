@@ -23,8 +23,8 @@ PyTorch 2.0+
 
 1. Clone the repository:
 ```bash
-git clone https://github.com/Charan1490/Dfu.git
-cd Dfu
+git clone https://github.com/Megha714/Diabetic_foot_ulcer.git
+cd Diabetic_foot_ulcer
 ```
 
 2. Install dependencies:
@@ -106,4 +106,4 @@ MIT License
 
 ## 👤 Author
 
-Charan Naik
+Megha Ganachari
