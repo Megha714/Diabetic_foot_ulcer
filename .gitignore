@@ -5,10 +5,21 @@ __pycache__/
 *.so
 .Python
 
+# Environment variables
+.env
+.env.local
+.env.production
+
 # Virtual environments
 venv/
 env/
 ENV/
+
+# Uploads (user files)
+uploads/*.jpg
+uploads/*.jpeg
+uploads/*.png
+uploads/*.pdf
 
 # Training outputs (keep best_model.pth and config.json)
 checkpoints/latest_checkpoint.pth
@@ -33,6 +44,10 @@ val2017/
 *.swp
 *.swo
 .DS_Store
+
+# Deployment
+.vercel
+.railway
 
 # Results
 results/

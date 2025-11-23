@@ -41,6 +41,7 @@ ipywidgets>=8.0.0
 # Web Interface (optional)
 flask>=2.3.0
 flask-cors>=4.0.0
+gunicorn>=21.2.0
 
 # PDF Generation
 reportlab>=4.0.0
