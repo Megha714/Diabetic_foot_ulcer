@@ -1,0 +1,285 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Add Patient - DFU Detection System</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #f5f7fa;
+        }
+
+        .navbar {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 15px 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .navbar-brand {
+            font-size: 1.5em;
+            font-weight: bold;
+            text-decoration: none;
+            color: white;
+        }
+
+        .main-container {
+            max-width: 800px;
+            margin: 30px auto;
+            padding: 0 20px;
+        }
+
+        .form-card {
+            background: white;
+            border-radius: 15px;
+            padding: 40px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+        }
+
+        .form-card h1 {
+            color: #333;
+            margin-bottom: 30px;
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            color: #333;
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            width: 100%;
+            padding: 12px 15px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 1em;
+            font-family: inherit;
+        }
+
+        .form-group input:focus,
+        .form-group select:focus,
+        .form-group textarea:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .form-group textarea {
+            resize: vertical;
+            min-height: 100px;
+        }
+
+        .btn-submit {
+            background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
+            color: white;
+            padding: 15px 40px;
+            border: none;
+            border-radius: 10px;
+            font-size: 1.1em;
+            font-weight: 600;
+            cursor: pointer;
+            width: 100%;
+            transition: all 0.3s ease;
+        }
+
+        .btn-submit:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(56, 239, 125, 0.3);
+        }
+
+        .btn-cancel {
+            background: #6c757d;
+            color: white;
+            padding: 15px 40px;
+            border: none;
+            border-radius: 10px;
+            font-size: 1.1em;
+            font-weight: 600;
+            cursor: pointer;
+            width: 100%;
+            margin-top: 10px;
+            text-decoration: none;
+            display: inline-block;
+            text-align: center;
+        }
+
+        .btn-cancel:hover {
+            background: #5a6268;
+        }
+
+        .alert {
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+        }
+
+        .alert-danger {
+            background: #ffe0e0;
+            color: #c92a2a;
+            border: 1px solid #ffa8a8;
+        }
+
+        @media (max-width: 768px) {
+            .form-row {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar">
+        <a href="{{ url_for('dashboard') }}" class="navbar-brand">🏥 DFU System</a>
+    </nav>
+
+    <div class="main-container">
+        <div class="form-card">
+            <h1>➕ Add Family Member</h1>
+
+            {% with messages = get_flashed_messages(with_categories=true) %}
+                {% if messages %}
+                    {% for category, message in messages %}
+                        <div class="alert alert-{{ category }}">{{ message }}</div>
+                    {% endfor %}
+                {% endif %}
+            {% endwith %}
+
+            <form method="POST" action="{{ url_for('add_patient') }}">
+                <div class="form-group">
+                    <label for="patient_id">Member ID *</label>
+                    <input type="text" id="patient_id" name="patient_id" value="{{ generated_patient_id }}" required readonly>
+                </div>
+
+                <div class="form-group">
+                    <label for="full_name">Full Name *</label>
+                    <input type="text" id="full_name" name="full_name" required placeholder="Enter full name">
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="age">Age</label>
+                        <input type="number" id="age" name="age" min="0" max="150" placeholder="Enter age">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="gender">Gender</label>
+                        <select id="gender" name="gender">
+                            <option value="">Select Gender</option>
+                            <option value="Male">Male</option>
+                            <option value="Female">Female</option>
+                            <option value="Other">Other</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="phone">Phone Number</label>
+                        <input type="tel" id="phone" name="phone" placeholder="Enter phone number">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="email">Email</label>
+                        <input type="email" id="email" name="email" placeholder="Enter email address">
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="address">Address</label>
+                    <textarea id="address" name="address" placeholder="Enter address"></textarea>
+                </div>
+
+                <h3 style="color: #667eea; margin: 30px 0 20px 0; border-bottom: 2px solid #667eea; padding-bottom: 10px;">🩺 Diabetes Information</h3>
+                
+                <div class="form-group">
+                    <label for="has_diabetes">Does this person have Diabetes? *</label>
+                    <select id="has_diabetes" name="has_diabetes" required onchange="toggleDiabetesFields()">
+                        <option value="No">No</option>
+                        <option value="Yes">Yes</option>
+                    </select>
+                </div>
+
+                <div id="diabetesFields" style="display: none;">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="diabetes_type">Diabetes Type *</label>
+                            <select id="diabetes_type" name="diabetes_type">
+                                <option value="">Select Type</option>
+                                <option value="Type 1">Type 1</option>
+                                <option value="Type 2">Type 2</option>
+                                <option value="Gestational">Gestational</option>
+                                <option value="Other">Other</option>
+                            </select>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="diabetes_duration">Diabetes Duration (years)</label>
+                            <input type="number" id="diabetes_duration" name="diabetes_duration" min="0" placeholder="e.g., 5">
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="blood_sugar_level">Blood Sugar Level (mg/dL)</label>
+                            <input type="number" id="blood_sugar_level" name="blood_sugar_level" step="0.1" min="0" placeholder="e.g., 120">
+                            <small style="color: #666;">Normal: 70-100 (fasting), &lt;140 (after meals)</small>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="hba1c_level">HbA1c Level (%)</label>
+                            <input type="number" id="hba1c_level" name="hba1c_level" step="0.1" min="0" max="20" placeholder="e.g., 6.5">
+                            <small style="color: #666;">Normal: &lt;5.7%, Prediabetes: 5.7-6.4%, Diabetes: ≥6.5%</small>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="medical_history">Medical History</label>
+                    <textarea id="medical_history" name="medical_history" placeholder="Enter relevant medical history, medications, allergies, etc."></textarea>
+                </div>
+
+                <button type="submit" class="btn-submit">✅ Add Family Member</button>
+                <a href="{{ url_for('patients') }}" class="btn-cancel">Cancel</a>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        function toggleDiabetesFields() {
+            const hasDiabetes = document.getElementById('has_diabetes').value;
+            const diabetesFields = document.getElementById('diabetesFields');
+            const diabetesType = document.getElementById('diabetes_type');
+            
+            if (hasDiabetes === 'Yes') {
+                diabetesFields.style.display = 'block';
+                diabetesType.required = true;
+            } else {
+                diabetesFields.style.display = 'none';
+                diabetesType.required = false;
+                // Clear diabetes fields
+                document.getElementById('diabetes_type').value = '';
+                document.getElementById('diabetes_duration').value = '';
+                document.getElementById('blood_sugar_level').value = '';
+                document.getElementById('hba1c_level').value = '';
+            }
+        }
+    </script>
+</body>
+</html>

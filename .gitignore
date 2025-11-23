@@ -1,0 +1,41 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+
+# Virtual environments
+venv/
+env/
+ENV/
+
+# Training outputs (keep best_model.pth and config.json)
+checkpoints/latest_checkpoint.pth
+checkpoints/training_history.png
+*.log
+training_output.log
+training.log
+nohup.out
+
+# Dataset (too large for GitHub - users need to provide their own)
+DFU/Patches/
+DFU/Negative_Samples/
+DFU/TestSet/
+DFU/Transfer-Learning images/
+DFU/Original Images/
+val2017/
+*.zip
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+.DS_Store
+
+# Results
+results/
+visualizations/*.png
+logs/*.log
+checkpoints/best_model.pth

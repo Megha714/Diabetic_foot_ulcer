@@ -1,0 +1,499 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DFU Detection - AI Powered</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .container {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            max-width: 800px;
+            width: 100%;
+            padding: 40px;
+        }
+
+        h1 {
+            text-align: center;
+            color: #333;
+            margin-bottom: 10px;
+            font-size: 2.5em;
+        }
+
+        .subtitle {
+            text-align: center;
+            color: #666;
+            margin-bottom: 30px;
+            font-size: 1.1em;
+        }
+
+        .upload-area {
+            border: 3px dashed #667eea;
+            border-radius: 15px;
+            padding: 40px;
+            text-align: center;
+            background: #f8f9ff;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-bottom: 20px;
+        }
+
+        .upload-area:hover {
+            border-color: #764ba2;
+            background: #f0f1ff;
+        }
+
+        .upload-area.dragover {
+            border-color: #764ba2;
+            background: #e8e9ff;
+            transform: scale(1.02);
+        }
+
+        .upload-icon {
+            font-size: 4em;
+            margin-bottom: 10px;
+        }
+
+        .upload-text {
+            font-size: 1.2em;
+            color: #667eea;
+            font-weight: 600;
+            margin-bottom: 5px;
+        }
+
+        .upload-hint {
+            color: #999;
+            font-size: 0.9em;
+        }
+
+        #fileInput {
+            display: none;
+        }
+
+        .preview-container {
+            display: none;
+            margin-top: 20px;
+        }
+
+        .preview-image {
+            max-width: 100%;
+            max-height: 400px;
+            border-radius: 10px;
+            margin: 20px auto;
+            display: block;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        .btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 15px 40px;
+            border-radius: 50px;
+            font-size: 1.1em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+            width: 100%;
+            margin-top: 10px;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(102, 126, 234, 0.5);
+        }
+
+        .btn:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+            box-shadow: none;
+        }
+
+        .loading {
+            display: none;
+            text-align: center;
+            padding: 20px;
+        }
+
+        .spinner {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #667eea;
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 10px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .result {
+            display: none;
+            margin-top: 30px;
+            padding: 25px;
+            border-radius: 15px;
+            animation: fadeIn 0.5s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .result.normal {
+            background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
+            color: white;
+        }
+
+        .result.abnormal {
+            background: linear-gradient(135deg, #ee0979 0%, #ff6a00 100%);
+            color: white;
+        }
+
+        .result.rejected {
+            background: linear-gradient(135deg, #bdc3c7 0%, #2c3e50 100%);
+            color: white;
+        }
+
+        .result-title {
+            font-size: 2em;
+            font-weight: bold;
+            margin-bottom: 15px;
+            text-align: center;
+        }
+
+        .result-details {
+            background: rgba(255, 255, 255, 0.2);
+            padding: 20px;
+            border-radius: 10px;
+            margin-top: 15px;
+        }
+
+        .result-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 10px 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.3);
+        }
+
+        .result-row:last-child {
+            border-bottom: none;
+        }
+
+        .result-label {
+            font-weight: 600;
+        }
+
+        .confidence-bar {
+            background: rgba(255, 255, 255, 0.3);
+            height: 30px;
+            border-radius: 15px;
+            overflow: hidden;
+            margin-top: 10px;
+            position: relative;
+        }
+
+        .confidence-fill {
+            height: 100%;
+            background: white;
+            transition: width 0.5s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            color: #667eea;
+        }
+
+        .error {
+            background: #ff4757;
+            color: white;
+            padding: 15px;
+            border-radius: 10px;
+            margin-top: 15px;
+            display: none;
+        }
+
+        .footer {
+            text-align: center;
+            margin-top: 30px;
+            color: #999;
+            font-size: 0.9em;
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-size: 0.9em;
+            font-weight: 600;
+            margin-left: 10px;
+        }
+
+        .badge.valid {
+            background: #38ef7d;
+            color: white;
+        }
+
+        .badge.invalid {
+            background: #ff4757;
+            color: white;
+        }
+
+        @media (max-width: 600px) {
+            .container {
+                padding: 20px;
+            }
+
+            h1 {
+                font-size: 1.8em;
+            }
+
+            .upload-area {
+                padding: 30px 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🏥 DFU Detection</h1>
+        <p class="subtitle">AI-Powered Diabetic Foot Ulcer Detection using Vision Transformer</p>
+
+        <div class="upload-area" id="uploadArea">
+            <div class="upload-icon">📤</div>
+            <div class="upload-text">Click to upload or drag & drop</div>
+            <div class="upload-hint">Supports: JPG, PNG, JPEG (Max 16MB)</div>
+            <input type="file" id="fileInput" accept="image/*">
+        </div>
+
+        <div class="preview-container" id="previewContainer">
+            <img id="previewImage" class="preview-image" alt="Preview">
+            <button class="btn" id="analyzeBtn">🔍 Analyze Image</button>
+        </div>
+
+        <div class="loading" id="loading">
+            <div class="spinner"></div>
+            <div>Analyzing image with AI model...</div>
+        </div>
+
+        <div class="error" id="error"></div>
+
+        <div class="result" id="result">
+            <div class="result-title" id="resultTitle"></div>
+            <div class="result-details">
+                <div class="result-row">
+                    <span class="result-label">Foot Image Validation:</span>
+                    <span id="validationStatus"></span>
+                </div>
+                <div class="result-row">
+                    <span class="result-label">Diagnosis:</span>
+                    <span id="diagnosisText"></span>
+                </div>
+                <div class="result-row">
+                    <span class="result-label">Confidence:</span>
+                    <span id="confidenceText"></span>
+                </div>
+                <div class="confidence-bar">
+                    <div class="confidence-fill" id="confidenceFill"></div>
+                </div>
+                <div style="margin-top: 20px;">
+                    <div class="result-row">
+                        <span class="result-label">Normal Probability:</span>
+                        <span id="normalProb"></span>
+                    </div>
+                    <div class="result-row">
+                        <span class="result-label">Abnormal Probability:</span>
+                        <span id="abnormalProb"></span>
+                    </div>
+                </div>
+            </div>
+            <button class="btn" onclick="location.reload()" style="margin-top: 20px;">
+                🔄 Analyze Another Image
+            </button>
+        </div>
+
+        <div class="footer">
+            <p>Powered by Vision Transformer (ViT) | 100% Validation Accuracy</p>
+            <p>⚡ Running on Apple Silicon MPS</p>
+        </div>
+    </div>
+
+    <script>
+        const uploadArea = document.getElementById('uploadArea');
+        const fileInput = document.getElementById('fileInput');
+        const previewContainer = document.getElementById('previewContainer');
+        const previewImage = document.getElementById('previewImage');
+        const analyzeBtn = document.getElementById('analyzeBtn');
+        const loading = document.getElementById('loading');
+        const result = document.getElementById('result');
+        const error = document.getElementById('error');
+
+        let selectedFile = null;
+
+        // Click to upload
+        uploadArea.addEventListener('click', () => fileInput.click());
+
+        // File selection
+        fileInput.addEventListener('change', (e) => {
+            handleFile(e.target.files[0]);
+        });
+
+        // Drag and drop
+        uploadArea.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            uploadArea.classList.add('dragover');
+        });
+
+        uploadArea.addEventListener('dragleave', () => {
+            uploadArea.classList.remove('dragover');
+        });
+
+        uploadArea.addEventListener('drop', (e) => {
+            e.preventDefault();
+            uploadArea.classList.remove('dragover');
+            handleFile(e.dataTransfer.files[0]);
+        });
+
+        function handleFile(file) {
+            if (!file) return;
+
+            if (!file.type.startsWith('image/')) {
+                showError('Please select an image file');
+                return;
+            }
+
+            selectedFile = file;
+            
+            // Show preview
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                previewImage.src = e.target.result;
+                uploadArea.style.display = 'none';
+                previewContainer.style.display = 'block';
+                result.style.display = 'none';
+                error.style.display = 'none';
+            };
+            reader.readAsDataURL(file);
+        }
+
+        analyzeBtn.addEventListener('click', async () => {
+            if (!selectedFile) return;
+
+            // Show loading
+            loading.style.display = 'block';
+            result.style.display = 'none';
+            error.style.display = 'none';
+            analyzeBtn.disabled = true;
+
+            // Create form data
+            const formData = new FormData();
+            formData.append('file', selectedFile);
+
+            try {
+                // Send to server
+                const response = await fetch('/predict', {
+                    method: 'POST',
+                    body: formData
+                });
+
+                const data = await response.json();
+
+                // Hide loading
+                loading.style.display = 'none';
+                analyzeBtn.disabled = false;
+
+                if (data.success) {
+                    showResult(data);
+                } else {
+                    showError(data.error || 'Prediction failed');
+                }
+            } catch (err) {
+                loading.style.display = 'none';
+                analyzeBtn.disabled = false;
+                showError('Network error: ' + err.message);
+            }
+        });
+
+        function showResult(data) {
+            result.style.display = 'block';
+
+            // Remove previous classes
+            result.classList.remove('normal', 'abnormal', 'rejected');
+
+            if (data.rejected) {
+                // Rejected image
+                result.classList.add('rejected');
+                document.getElementById('resultTitle').textContent = '⚠️ Invalid Image';
+                
+                // Show rejection reason if available
+                let rejectionText = 'Not a Foot Image';
+                if (data.rejection_reason) {
+                    rejectionText += '<br><small style="font-size: 0.9em; opacity: 0.9;">Reason: ' + 
+                        data.rejection_reason + '</small>';
+                }
+                
+                document.getElementById('validationStatus').innerHTML = 
+                    '<span class="badge invalid">' + rejectionText + '</span>';
+                document.getElementById('diagnosisText').textContent = 'N/A - Image Rejected';
+                document.getElementById('confidenceText').textContent = 
+                    `${(data.validation_confidence * 100).toFixed(1)}%`;
+                document.getElementById('confidenceFill').style.width = 
+                    `${data.validation_confidence * 100}%`;
+                document.getElementById('confidenceFill').textContent = 
+                    `${(data.validation_confidence * 100).toFixed(1)}%`;
+                document.getElementById('normalProb').textContent = 'N/A';
+                document.getElementById('abnormalProb').textContent = 'N/A';
+            } else {
+                // Valid prediction
+                if (data.predicted_class === 0) {
+                    result.classList.add('normal');
+                    document.getElementById('resultTitle').textContent = '✅ Normal (Healthy Skin)';
+                } else {
+                    result.classList.add('abnormal');
+                    document.getElementById('resultTitle').textContent = '⚠️ Abnormal (Ulcer Detected)';
+                }
+
+                document.getElementById('validationStatus').innerHTML = 
+                    '<span class="badge valid">Valid Foot Image</span>';
+                document.getElementById('diagnosisText').textContent = data.class_name;
+                document.getElementById('confidenceText').textContent = 
+                    `${(data.confidence * 100).toFixed(2)}%`;
+                document.getElementById('confidenceFill').style.width = 
+                    `${data.confidence * 100}%`;
+                document.getElementById('confidenceFill').textContent = 
+                    `${(data.confidence * 100).toFixed(2)}%`;
+                document.getElementById('normalProb').textContent = 
+                    `${(data.probabilities.Normal * 100).toFixed(2)}%`;
+                document.getElementById('abnormalProb').textContent = 
+                    `${(data.probabilities.Abnormal * 100).toFixed(2)}%`;
+            }
+        }
+
+        function showError(message) {
+            error.textContent = '❌ Error: ' + message;
+            error.style.display = 'block';
+        }
+    </script>
+</body>
+</html>

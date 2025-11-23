@@ -1,0 +1,274 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ patient.full_name }} - DFU Detection System</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #f5f7fa;
+        }
+
+        .navbar {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 15px 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .navbar-brand {
+            font-size: 1.5em;
+            font-weight: bold;
+            text-decoration: none;
+            color: white;
+        }
+
+        .main-container {
+            max-width: 1200px;
+            margin: 30px auto;
+            padding: 0 20px;
+        }
+
+        .patient-header {
+            background: white;
+            border-radius: 15px;
+            padding: 30px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+        }
+
+        .patient-header h1 {
+            color: #333;
+            margin-bottom: 10px;
+        }
+
+        .patient-id {
+            color: #667eea;
+            font-weight: 600;
+            font-size: 1.1em;
+        }
+
+        .grid-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+
+        .info-card {
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+        }
+
+        .info-card h2 {
+            color: #333;
+            margin-bottom: 20px;
+            font-size: 1.3em;
+        }
+
+        .info-row {
+            display: flex;
+            padding: 12px 0;
+            border-bottom: 1px solid #f0f0f0;
+        }
+
+        .info-row:last-child {
+            border-bottom: none;
+        }
+
+        .info-label {
+            font-weight: 600;
+            color: #666;
+            width: 150px;
+        }
+
+        .info-value {
+            color: #333;
+            flex: 1;
+        }
+
+        .predictions-list {
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+        }
+
+        .prediction-item {
+            padding: 15px;
+            border: 2px solid #f0f0f0;
+            border-radius: 10px;
+            margin-bottom: 15px;
+        }
+
+        .prediction-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+
+        .badge {
+            padding: 6px 15px;
+            border-radius: 15px;
+            font-size: 0.9em;
+            font-weight: 600;
+        }
+
+        .badge-normal {
+            background: #d4f8d4;
+            color: #2a9d2a;
+        }
+
+        .badge-abnormal {
+            background: #ffd4d4;
+            color: #c92a2a;
+        }
+
+        .btn-detect {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 15px 30px;
+            border: none;
+            border-radius: 10px;
+            font-size: 1.1em;
+            font-weight: 600;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-block;
+        }
+
+        .btn-detect:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.3);
+        }
+
+        .btn-back {
+            background: #6c757d;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 8px;
+            text-decoration: none;
+            display: inline-block;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 40px;
+            color: #999;
+        }
+
+        @media (max-width: 768px) {
+            .grid-container {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar">
+        <a href="{{ url_for('dashboard') }}" class="navbar-brand">🏥 DFU System</a>
+    </nav>
+
+    <div class="main-container">
+        <div style="margin-bottom: 20px; display: flex; justify-content: space-between; align-items: center;">
+            <a href="{{ url_for('patients') }}" class="btn-back">← Back to Patients</a>
+            <a href="{{ url_for('export_report', patient_id=patient.id) }}" class="btn-download" style="background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%); color: white; padding: 12px 24px; border-radius: 25px; text-decoration: none; font-weight: 600; box-shadow: 0 5px 15px rgba(17, 153, 142, 0.4); transition: all 0.3s ease;">
+                📄 Download PDF Report
+            </a>
+        </div>
+
+        <div class="patient-header">
+            <h1>👤 {{ patient.full_name }}</h1>
+            <p class="patient-id">{{ patient.patient_id }}</p>
+        </div>
+
+        <div class="grid-container">
+            <div class="info-card">
+                <h2>📋 Personal Information</h2>
+                <div class="info-row">
+                    <div class="info-label">Age:</div>
+                    <div class="info-value">{{ patient.age or 'N/A' }}</div>
+                </div>
+                <div class="info-row">
+                    <div class="info-label">Gender:</div>
+                    <div class="info-value">{{ patient.gender or 'N/A' }}</div>
+                </div>
+                <div class="info-row">
+                    <div class="info-label">Phone:</div>
+                    <div class="info-value">{{ patient.phone or 'N/A' }}</div>
+                </div>
+                <div class="info-row">
+                    <div class="info-label">Email:</div>
+                    <div class="info-value">{{ patient.email or 'N/A' }}</div>
+                </div>
+                <div class="info-row">
+                    <div class="info-label">Address:</div>
+                    <div class="info-value">{{ patient.address or 'N/A' }}</div>
+                </div>
+            </div>
+
+            <div class="info-card">
+                <h2>🩺 Medical Information</h2>
+                <div class="info-row">
+                    <div class="info-label">Diabetes Type:</div>
+                    <div class="info-value">{{ patient.diabetes_type or 'N/A' }}</div>
+                </div>
+                <div class="info-row">
+                    <div class="info-label">Duration:</div>
+                    <div class="info-value">{{ patient.diabetes_duration or 'N/A' }} years</div>
+                </div>
+                <div class="info-row">
+                    <div class="info-label">Medical History:</div>
+                    <div class="info-value">{{ patient.medical_history or 'No history recorded' }}</div>
+                </div>
+                <div class="info-row">
+                    <div class="info-label">Registered:</div>
+                    <div class="info-value">{{ patient.created_at[:10] }}</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="predictions-list">
+            <h2>🔬 Health Check History</h2>
+            <div style="margin: 20px 0;">
+                <a href="{{ url_for('dfu_detection', patient_id=patient.id) }}" class="btn-detect">
+                    ➕ New Health Check
+                </a>
+            </div>
+
+            {% if predictions %}
+                {% for pred in predictions %}
+                    <div class="prediction-item">
+                        <div class="prediction-header">
+                            <strong>{{ pred.created_at }}</strong>
+                            <span class="badge {{ 'badge-normal' if pred.predicted_class == 0 else 'badge-abnormal' }}">
+                                {{ pred.class_name }}
+                            </span>
+                        </div>
+                        <div style="color: #666; font-size: 0.95em;">
+                            <div>Confidence: {{ (pred.confidence * 100)|round(2) }}%</div>
+                            <div>Doctor: {{ pred.doctor_name }}</div>
+                            {% if pred.notes %}
+                                <div>Notes: {{ pred.notes }}</div>
+                            {% endif %}
+                        </div>
+                    </div>
+                {% endfor %}
+            {% else %}
+                <div class="empty-state">
+                    <p>No health check history yet</p>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</body>
+</html>
